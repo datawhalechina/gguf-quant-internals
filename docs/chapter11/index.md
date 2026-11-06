@@ -262,7 +262,7 @@ static_assert(sizeof(block_iq1_s) == sizeof(ggml_half) + QK_K/8 + QK_K/16,
 \text{bpw} = \frac{50 \times 8}{256} = 1.5625 \ \text{bit/weight}
 \]
 
-在这个 161 值块里，8 个 32 值组共用同一个 `d`，组内的 `qh` 负责提供尺度、delta 和高 3 位。下面这版反量化主循环（C++，对齐 `ggml-quants.c` 的 `dequantize_row_iq1_s`）：
+在这个 256 值块里，8 个 32 值组共用同一个 `d`，组内的 `qh` 负责提供尺度、delta 和高 3 位。下面这版反量化主循环（C++，对齐 `ggml-quants.c` 的 `dequantize_row_iq1_s`）：
 
 **C++：**
 ```cpp
