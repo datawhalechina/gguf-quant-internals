@@ -1,6 +1,6 @@
 # 附录 E llama.cpp 关键函数索引
 
-> 本附录按格式列出 llama.cpp 生态中与量化最相关的三个函数族：`quantize_row_*`（量化）、`dequantize_row_*`（反量化）与 `ggml_vec_dot_*`（量化块上的直乘点积）。函数名与源文件以 llama.cpp **主线 master（2026-10 核实）** 为准。行号是写作时抓取的近似位置，可能随版本漂移，请以"文件名 + 函数名"为准。
+> 本附录按格式列出 llama.cpp 生态中与量化关系最密切的三个函数族：`quantize_row_*`（量化）、`dequantize_row_*`（反量化）与 `ggml_vec_dot_*`（量化块上的直乘点积）。函数名与源文件以 llama.cpp **主线 master（2026-10 核实）** 为准。行号是写作时抓取的近似位置，会随版本漂移，使用时请以"文件名 + 函数名"为准。
 
 ## E.1 三个函数族分别做什么
 
@@ -12,7 +12,7 @@
 | `dequantize_row_*` | 量化块 → FP32 | `const block_* * x` | `float * y` | 把量化块还原成浮点数（第 4–10 章"反量化"） |
 | `ggml_vec_dot_*` | 量化块 → 标量 | 两个量化块指针 | `float * s` | 不完整反量化，直接在块上做点积（第 16、17 章性能核心） |
 
-以 Q4_0 为例这三个函数的形态（这是理解全部命名规律的钥匙）：
+先看以 Q4_0 为例时这三个函数的实际形态（这是理解全部命名规律的钥匙）：
 
 ```c
 // ggml/src/ggml-quants.c
@@ -34,7 +34,7 @@ void ggml_vec_dot_q4_0_q8_0_generic(int n, float * s, size_t bs, const void * vx
 
 ## E.2 按格式的完整索引
 
-下表汇总主线中每个量化格式相对应的三个函数。`quantize_row_*_ref` 未列出时表示该格式没有公开的参考量化实现（对应 `type_traits` 中 `from_float_ref = NULL`，只能通过官方转换/量化流程产生）。源文件缩写：**Q** = `ggml/src/ggml-quants.c`，**C** = `ggml/src/ggml-cpu/quants.c`。
+下表汇总主线中每个量化格式对应的三个函数。`quantize_row_*_ref` 未列出时，表示该格式没有公开的参考量化实现（对应 `type_traits` 中的 `from_float_ref = NULL`，只能通过官方转换/量化流程产生）。源文件缩写：**Q** = `ggml/src/ggml-quants.c`，**C** = `ggml/src/ggml-cpu/quants.c`。
 
 | 格式 | quantize_row（量化，Q） | dequantize_row（反量化，Q） | ggml_vec_dot（点积，C） |
 |---|---|---|---|
@@ -122,7 +122,7 @@ ggml_vec_dot_<TYPE>_<ACT>          (同文件，NEON/AVX2/AVX512 内联实现)
 
 ## E.5 SIMD 与后端变体在哪
 
-上面的表是"参考/C 实现"。真正的性能代码分散在各后端：
+上面的表格列出的是"参考/C 实现"。真正的性能代码分散在各后端：
 
 - **CPU SIMD**：`ggml/src/ggml-cpu/quants.c`（NEON/AVX2/AVX512 的 `vec_dot`、`*_generic`）。这个文件是 SIMD 优化的主战场，也是第 17 章讨论的"K-quants 位操作如何向量化"的出处。
 - **CPU 张量重排**：`ggml/src/ggml-cpu/repack.cpp`（把块按 SIMD 友好的布局重排，配合 runtime repacking）。
@@ -130,11 +130,11 @@ ggml_vec_dot_<TYPE>_<ACT>          (同文件，NEON/AVX2/AVX512 内联实现)
 - **Metal（Apple）**：`ggml/src/ggml-metal/`，Metal 着色器内联实现反量化与点积。
 - **Vulkan / SYCL / OpenCL 等**：`ggml/src/ggml-vulkan/`、`ggml-sycl/`、`ggml-opencl/` 各有一个镜像实现。
 
-**后端覆盖不一致是常态**：新格式往往先做 CPU（C + SIMD），再逐步补 GPU。三值格式 STQ1_0 就有一个真实例子——主线 CPU 端有 NEON（PR #22836）与 AVX2（PR #27377）内核，但 Metal 明确"排除 STQ1_0 的 mul_mat 路径"（PR #28067）。**部署前必须确认目标后端真的有该格式的 vec_dot/dequant 内核**，而不是只看 CPU 测试通过（第 13、15 章反复强调）。
+**后端覆盖不一致是常态**：新格式往往先做 CPU（C + SIMD），再逐步补 GPU。三值格式 STQ1_0 就是一个真实例子——主线 CPU 端有 NEON（PR #22836）与 AVX2（PR #27377）内核，但 Metal 明确"排除 STQ1_0 的 mul_mat 路径"（PR #28067）。**部署前必须确认目标后端真的有该格式的 vec_dot/dequant 内核**，而不是只看 CPU 测试通过（第 13、15 章反复强调）。
 
 ## E.6 本书主格式速查
 
-把正文反复出现的几个格式单独列一次，方便查阅：
+把正文里反复出现的几个格式单独列成一张表，方便随手查阅：
 
 | 格式 | 块大小 QK | 每块字节 | bpw | 反量化公式（简写） | 核心文件（grep 依据） |
 |---|---|---|---|---|---|

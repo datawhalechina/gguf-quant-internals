@@ -1,6 +1,6 @@
 # 附录 F 实验脚本与命令
 
-> 本附录把正文反复出现的工具命令整理成一套**可直接照抄运行**的端到端流程：从 Hugging Face 权重出发，经过转换、imatrix、量化、PPL/KL 校验，到最后端侧冒烟。命令以 llama.cpp 主线（2026-10）与 gguf-py 0.19.0 为准。所有输出数字都是示意，实际以你的模型与设备为准。
+> 本附录把正文里反复出现的工具命令整理成一套**可以直接照抄运行**的端到端流程：从 Hugging Face 权重出发，依次经过转换、imatrix、量化、PPL/KL 校验，到最后在端侧冒烟。命令以 llama.cpp 主线（2026-10）与 gguf-py 0.19.0 为准。所有输出数字都是示意，请以你自己的模型与设备为准。
 
 ## F.1 环境准备
 
@@ -63,7 +63,7 @@ $BIN/llama-perplexity -m ./model-q4_k_m.gguf -f $TEST_TXT \
 $BIN/llama-cli -m ./model-q4_k_m.gguf -p "Hello" -n 64 -ngl 99
 ```
 
-分步骤说：
+下面把每个步骤拆开，逐一说明要点：
 
 **步骤①** `convert_hf_to_gguf.py` 的三个要点：
 - 输出用 `--outfile`/`-o` 指定文件名，用 `--outtype` 指定精度：`f32`/`f16`/`bf16`/`q8_0`/`auto`。**`auto` 按张量原始精度决定**，通常表现为大部分 `bf16`。
@@ -157,7 +157,7 @@ file_type    = 15
   Q6_K                2  ( 0.5%)
 ```
 
-`file_type = 15` 是 `MOSTLY_Q4_K_M`（策略名）；内部却是三种类型并存（第 3、14 章的实锤）。
+`file_type = 15` 对应 `MOSTLY_Q4_K_M`（策略名）；但文件内部实际上是三种类型并存（这正是第 3、14 章反复强调的证据）。
 
 ## F.5 端侧基准的命令（第 17 章）
 
@@ -179,7 +179,7 @@ print(f"mean={np.mean(ns):.2f} p95={np.percentile(ns, 95):.2f} std={np.std(ns):.
 PY
 ```
 
-第 17 章提醒：**端侧基准不能只看平均 tok/s**。TTFT（首 token 延迟）和 P95 延迟决定"可不可用"。不同芯片组（Snapdragon / Tensor / Dimensity / Exynos）的 GPU delegate 延迟方差可达 ±12% 到 ±52%，所以脚本里"同一模型在不同后端各跑一次"比"跑一次则极快"更有意义。
+第 17 章提醒我们：**端侧基准不能只看平均 tok/s**。真正决定"可不可用"的是 TTFT（首 token 延迟）和 P95 延迟。不同芯片组（Snapdragon / Tensor / Dimensity / Exynos）的 GPU delegate 延迟方差可达 ±12% 到 ±52%，所以脚本里"让同一模型在不同后端各跑一次"比"跑一次跑得飞快"更有参考意义。
 
 ## F.6 三值格式的额外步骤（第 13 章）
 
@@ -196,7 +196,7 @@ $BIN/llama-quantize --help | grep -i "stq1\|ptq1" || echo "当前构建不支持
 $BIN/llama-cli -m ./model-ptq1_0.gguf -p "Hello" -n 8 -ngl 99
 ```
 
-**正确的三值部署 = 格式正确 + 变换正确 + 后端覆盖正确**。三者缺一 logits 都会错（第 13 章的"Hadamard 陷阱"）。
+**正确的三值部署 = 格式正确 + 变换正确 + 后端覆盖正确**。三者缺一，logits 都会出错（第 13 章的"Hadamard 陷阱"）。
 
 ## F.7 附录小结
 

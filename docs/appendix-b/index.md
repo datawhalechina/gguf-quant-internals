@@ -1,8 +1,8 @@
 # 附录 B 字节布局图集
 
-本附录把全书 16 个核心格式的**逐字节布局**集中展示：每个格式给一张 ASCII 布局图、C 结构体（与 llama.cpp `ggml-common.h` 一致）、Python `struct` 描述。所有字节数经 `static_assert` 与 2026-10 主线源码核实（见 `asset/facts-verified.md`、`asset/ggml-common.h`）。
+本附录集中展示全书 16 个核心格式的**逐字节布局**：每个格式都配有一张 ASCII 布局图、一个与 llama.cpp `ggml-common.h` 一致的 C 结构体，以及对应的 Python `struct` 描述。所有字节数都经过 `static_assert` 和 2026-10 主线源码核实（见 `asset/facts-verified.md`、`asset/ggml-common.h`）。
 
-通用约定：
+先说明几条通用约定：
 
 - `d` = FP16 位模式（2 字节，小端），`dm` = `d`+`m`（或 `d`+`dmin`）共 4 字节，`d`(f32) = 4 字节 FP32。
 - Python 半精度用小端格式 `'<e'`；多字节整数用 `'<H'`（u16）、`'<I'`（u32）、`'<Q'`（u64）。
@@ -443,7 +443,7 @@ static_assert(sizeof(block_iq4_nl) == 18, "wrong iq4_nl block size/padding");
 
 ## B.15 STQ1_0（fork/PR，256 值 / 42 字节 / 1.3125 bpw）
 
-> ⚠ 此格式**不在 llama.cpp 主线**，以下布局为细纲口径，落地前必须以实际 fork/PR 文档复核（第 13 章）。
+> ⚠ 此格式**不在 llama.cpp 主线**，下面的布局采用细纲口径；真正落地前，必须再对照实际 fork/PR 文档复核（第 13 章）。
 
 ```
 偏移   0                   31  32        39  40  41
@@ -459,7 +459,7 @@ static_assert(sizeof(block_iq4_nl) == 18, "wrong iq4_nl block size/padding");
 
 ## B.16 PTQ1_0（fork/PR，128 值 / 28 字节 / 1.75 bpw）
 
-> ⚠ 同上，不在主线；且 **Hadamard 折叠是必需变换**，缺失则 logits 完全错误（第 13 章）。
+> ⚠ 同上，此格式不在主线；而且 **Hadamard 折叠是必需变换**，缺失后 logits 会完全错误（第 13 章）。
 
 ```
 偏移   0                23  24    25  26  27
@@ -477,6 +477,6 @@ static_assert(sizeof(block_iq4_nl) == 18, "wrong iq4_nl block size/padding");
 
 ## B.17 附录说明
 
-1. **结构体顺序**是"磁盘顺序"：Q2_K/Q3_K/Q6_K 的 `d`（及 `dmin`）在尾部，Q4_K/Q5_K 的 `d`/`dmin` 在头部——写解析器时务必按表、不要想当然。
-2. **static_assert** 是格式正确性的第一道防线（第 3、16 章）；Python 侧对应的是 `assert len(block) == N`。
-3. STQ1_0/PTQ1_0 字节数为细纲口径；主线中对应位置已被 Q1_0/Q2_0（type 41/42）占用，这正是第 13/19/20 章讨论的 id 冲突实例。
+1. **结构体顺序**就是"磁盘顺序"：Q2_K/Q3_K/Q6_K 的 `d`（及 `dmin`）在尾部，Q4_K/Q5_K 的 `d`/`dmin` 在头部——编写解析器时务必按表处理，不要凭感觉猜布局。
+2. **static_assert** 是检查格式正确性的第一道防线（第 3、16 章）；在 Python 侧，对应的检查是 `assert len(block) == N`。
+3. STQ1_0/PTQ1_0 的字节数采用细纲口径；主线中相应位置已经被 Q1_0/Q2_0（type 41/42）占用，这正是第 13/19/20 章讨论的 id 冲突实例。

@@ -1,6 +1,6 @@
 # 附录 D gguf-py API 速查
 
-`gguf`（也叫 gguf-py）是 GGUF 的官方 Python 库，第 3 章介绍了它的三个核心对象，本附录把它们拉通成一份**开箱即用的速查表**：常用调用模式、容易踩的坑、以及可运行的示例。
+`gguf`（也叫 gguf-py）是 GGUF 的官方 Python 库，第 3 章介绍了它的三个核心对象，本附录把它们整理成一份**开箱即用的速查表**：常用调用模式、容易踩的坑、以及可运行的示例。
 
 > 版本：本附录基于 gguf-py 0.19.0（2026 年主线）。
 > 安装：`pip install gguf`；要可视化编辑用 `pip install gguf[gui]`（附带 Qt 界面，见官方仓库 README）。
@@ -113,7 +113,7 @@ for name in ("F32", "Q4_0", "Q4_K", "Q6_K", "IQ1_S", "TQ1_0"):
 
 ## D.4 `GGUFWriter`：写文件
 
-三步流程：`write_header_to_file()` → `write_kv_data_to_file()` → `write_tensors_to_file()`。**先登记无数据，再一次性落盘**，这样能正确计算每个张量的相对偏移。
+三步流程：`write_header_to_file()` → `write_kv_data_to_file()` → `write_tensors_to_file()`。**先把信息全部登记好，再一次性落盘**，这样写入器才能正确计算每个张量的相对偏移。
 
 ```python
 import numpy as np
@@ -139,7 +139,7 @@ w.write_kv_data_to_file()
 w.write_tensors_to_file()
 ```
 
-`add_tensor` 接受 `data`（np.ndarray），会自动编码。若要**只登记元信息、数据稍后给**，用 `add_tensor_info(name, type, shape)` + 后面 `write_tensors_to_file`（数据通过 `.set_tensor` 或类似机制）。
+`add_tensor` 接受 `data`（np.ndarray），会自动完成编码。若要**只登记元信息、数据稍后再给**，可先用 `add_tensor_info(name, type, shape)` 登记，随后再调用 `write_tensors_to_file`（数据通过 `.set_tensor` 或类似机制提供）。
 
 **关键方法速查：**
 
@@ -231,7 +231,7 @@ python -m gguf.scripts.gguf_dump in.gguf
 python -m gguf.scripts.gguf_convert_endian in.gguf out.gguf
 ```
 
-> 这些脚本的入口名在库里是 `gguf.scripts.gguf_dump` 等。`gguf_dump` 等价于把`reader.fields` 打印出来。
+> 这些脚本的入口名在库里是 `gguf.scripts.gguf_dump` 等。`gguf_dump` 等价于把 `reader.fields` 的内容打印出来。
 
 ---
 
@@ -250,6 +250,6 @@ python -m gguf.scripts.gguf_convert_endian in.gguf out.gguf
 
 ## D.8 与本附录其他部分的关系
 
-- 附录 C 给出了**不依赖 gguf-py** 的最小解析器与解码器——当你需要理解字节级别、验证库的行为、或移植到其他语言时用它。
-- 本附录的 `dequantize` 是"官方参考语义"，可作为附录 C 交叉验证的 ground truth（第 19.1.2 节：**任何自研读取器的偏差都应先怀疑自己**）。
-- 三值格式 STQ1_0/PTQ1_0（第 13 章）在主线 gguf-py 中不存在；要读它们，须用对应 fork 的 gguf-py 或者你自己的解析器。
+- 附录 C 给出了**不依赖 gguf-py** 的最小解析器与解码器——当你想理解字节级别的细节、验证库的行为、或移植到其他语言时，可以看它。
+- 本附录的 `dequantize` 是"官方参考语义"，可以作为附录 C 交叉验证的 ground truth（第 19.1.2 节：**任何自研读取器的偏差都应先怀疑自己**）。
+- 三值格式 STQ1_0/PTQ1_0（第 13 章）在主线 gguf-py 中不存在；要读取它们，必须使用对应 fork 的 gguf-py，或者你自己写的解析器。
