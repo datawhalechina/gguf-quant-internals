@@ -6,4 +6,4 @@
 4.  重要概念需要附带代码，需要 C++/C#/Python 三种编程语言的代码
 5.  必要时添加 ASCII Art 图标来解释
 6.  细纲位于`docs/asset/detail.md`
-7.  源码位于`docs/src/`
+7.  源码位于`src/`
