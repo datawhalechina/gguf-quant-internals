@@ -67,6 +67,16 @@ https://datawhalechina.github.io/gguf-quant-internals
 - 如果你想参与贡献本项目，可以提Pull Request，如果提完没有人回复你可以联系[保姆团队](https://github.com/datawhalechina/DOPMC/blob/main/OP.md)的同学进行反馈跟进~
 - 如果你对 Datawhale 很感兴趣并想要发起一个新的项目，请按照[Datawhale开源项目指南](https://github.com/datawhalechina/DOPMC/blob/main/GUIDE.md)进行操作即可~
 
+## 相关项目
+
++	[从零构建 C++ LLM 推理引擎](https://github.com/datawhalechina/cpp-llm-engine)
++	[从零开始自制大模型推理框架](https://github.com/DracoUnion/Qwen3.5Sharp/tree/master/book)
++	[Qwen3.5Sharp](https://github.com/DracoUnion/Qwen3.5Sharp)
++	[HyMT2Sharp](https://github.com/sdcb/HyMT2Sharp)
++	[zero-to-sglang](https://github.com/datawhalechina/zero-to-sglang)
++	[vllm 源码解析](https://vllm-book.myhubs.dev/)
++	[llama.cpp 源码解析](https://github.com/wizardforcel/llama-cpp-code-analysis)
+
 ## 关注我们
 
 <div align=center>
