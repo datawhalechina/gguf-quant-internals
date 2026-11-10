@@ -26,6 +26,7 @@ GGUF 量化技术之所以成为端侧大模型部署和大模型技术普及的
 +   [在线阅读](https://datawhalechina.github.io/gguf-quant-internals)
 +   [PDF 格式](https://github.com/user-attachments/files/34618868/GGUF.pdf)
 +   [EPUB 格式](https://github.com/user-attachments/files/34618887/GGUF.zip)
++	[纸质书（预印版）](docs/public/opendoccn_print_20261110.png)
 
 ## 目录
 
