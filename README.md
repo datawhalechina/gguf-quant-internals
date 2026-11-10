@@ -1,5 +1,7 @@
 <h1 align="center">GGUF 量化内幕</h1>
 
+<center><img src='docs/public/gguf-quant-internals-cover.png'/></center>
+
 > [!WARNING]
 > 🧪 Beta公测版本提示：教程主体已完成，正在优化细节，欢迎大家提Issue反馈问题或建议。
 
