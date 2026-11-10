@@ -21,8 +21,11 @@ GGUF 量化技术之所以成为端侧大模型部署和大模型技术普及的
 
 想要制作端侧推理引擎，或者制作 GGUF 量化模型的人。
 
-## 在线阅读
-https://datawhalechina.github.io/gguf-quant-internals
+## 在线阅读、电子书及纸质书
+
++   [在线阅读](https://datawhalechina.github.io/gguf-quant-internals)
++   [PDF 格式](https://github.com/user-attachments/files/34618868/GGUF.pdf)
++   [EPUB 格式](https://github.com/user-attachments/files/34618887/GGUF.zip)
 
 ## 目录
 
